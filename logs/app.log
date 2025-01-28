@@ -1,0 +1,5 @@
+[2025-01-26 08:00:52] [ERROR] Failed to add student | Exception: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`studentmanagementsystem`.`sk_students`, CONSTRAINT `sk_students_ibfk_1` FOREIGN KEY (`courseID`) REFERENCES `sk_courses` (`courseID`)) | Stack Trace: #0 C:\xampp\htdocs\studentmanagementsystem\src\models\post.php(25): PDOStatement->execute()
+#1 C:\xampp\htdocs\studentmanagementsystem\api\endpoints\students.php(48): Post->addStudent('cs603', 'Angelo', 'Dano', 'gelo@example.co...')
+#2 C:\xampp\htdocs\studentmanagementsystem\api\index.php(33): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+

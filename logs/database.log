@@ -1,0 +1,7 @@
+[2025-01-26 08:01:01] [INSERT] Table: sk_students | System | Data: {"courseID":"cs602","firstName":"Angelo","lastName":"Dano","email":"gelo@example.com","studentID":"50"}
+[2025-01-26 08:12:09] [INSERT] Table: sk_students | System | Data: {"courseID":"cs602","firstName":"gordon","lastName":"college","email":"gcolongapo@example.com","studentID":"51"}
+[2025-01-26 08:13:51] [INSERT] Table: sk_courses | System | Data: {"courseID":"cs603","courseName":"Front-end Developer"}
+[2025-01-26 08:39:30] [INSERT] Table: sk_students | System | Data: {"courseID":"cs601","firstName":"Alice","lastName":"Smith","email":"alice.smith@example.com","studentID":"52"}
+[2025-01-26 08:44:01] [UPDATE] Table: sk_students | User ID: 1 | Data: {"firstName":"Alice Marie","lastName":"Johnson","email":"alice.marie@example.com"}
+[2025-01-26 09:11:13] [UPDATE] Table: sk_students | User ID: 1 | Data: {"firstName":"John","lastName":"Doe","email":"johndoe@example.com"}
+[2025-01-26 09:11:18] [UPDATE] Table: sk_students | User ID: 1 | Data: {"firstName":"John","lastName":"Doe","email":"johndoe@example.com"}
