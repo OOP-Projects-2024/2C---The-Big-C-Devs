@@ -1,9 +1,11 @@
 <?php
-require_once 'add_student.php';
-require_once 'add_course.php';
-require_once 'delete_student.php';
-require_once 'record_attendance.php';
-require_once 'add_assignment.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use App\Controllers\StudentController;
+use App\Controllers\CourseController;
+use App\Controllers\AssignmentController;
+use App\Controllers\AttendanceController;
+use App\Controllers\GradeController;
 
 class Router {
     private $routes = [];
@@ -17,9 +19,18 @@ class Router {
     }
 
     public function handleRequest($method, $path) {
+        $path = parse_url($path, PHP_URL_PATH);
+        
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $this->matchPath($route['path'], $path)) {
-                return call_user_func($route['handler']);
+                try {
+                    $response = call_user_func($route['handler']);
+                    $this->sendResponse($response);
+                    return;
+                } catch (Exception $e) {
+                    $this->handleError($e);
+                    return;
+                }
             }
         }
         $this->notFound();
@@ -33,55 +44,71 @@ class Router {
             return false;
         }
 
+        $params = [];
         for ($i = 0; $i < count($routeParts); $i++) {
-            if ($routeParts[$i] !== $requestParts[$i] && $routeParts[$i][0] !== ':') {
+            if ($routeParts[$i][0] === ':') {
+                $params[substr($routeParts[$i], 1)] = $requestParts[$i];
+            } elseif ($routeParts[$i] !== $requestParts[$i]) {
                 return false;
             }
         }
 
+        $_REQUEST = array_merge($_REQUEST, $params);
         return true;
+    }
+
+    private function sendResponse($response) {
+        header('Content-Type: application/json');
+        echo json_encode($response);
     }
 
     private function notFound() {
         header("HTTP/1.0 404 Not Found");
-        echo "404 Not Found";
+        echo json_encode(['error' => '404 Not Found']);
+    }
+
+    private function handleError($e) {
+        header("HTTP/1.0 500 Internal Server Error");
+        echo json_encode(['error' => $e->getMessage()]);
     }
 }
 
 $router = new Router();
 
-// Add Student route
-$router->addRoute('POST', '/add_student', function() {
-    $studentAdder = new StudentAdder();
-    return $studentAdder->addStudent();
-});
+// Student routes
+$router->addRoute('GET', '/api/students', [StudentController::class, 'index']);
+$router->addRoute('GET', '/api/students/:id', [StudentController::class, 'show']);
+$router->addRoute('POST', '/api/students', [StudentController::class, 'store']);
+$router->addRoute('PATCH', '/api/students/:id', [StudentController::class, 'update']);
+$router->addRoute('DELETE', '/api/students/:id', [StudentController::class, 'destroy']);
 
-// Add Course route
-$router->addRoute('POST', '/add_course', function() {
-    $courseAdder = new CourseAdder();
-    return $courseAdder->addCourse();
-});
+// Course routes
+$router->addRoute('GET', '/api/courses', [CourseController::class, 'index']);
+$router->addRoute('GET', '/api/courses/:id', [CourseController::class, 'show']);
+$router->addRoute('POST', '/api/courses', [CourseController::class, 'store']);
+$router->addRoute('PATCH', '/api/courses/:id', [CourseController::class, 'update']);
+$router->addRoute('DELETE', '/api/courses/:id', [CourseController::class, 'destroy']);
 
-// Delete Student route
-$router->addRoute('POST', '/delete_student', function() {
-    $studentDeleter = new StudentDeleter();
-    return $studentDeleter->deleteStudent();
-});
+// Assignment routes
+$router->addRoute('GET', '/api/assignments', [AssignmentController::class, 'index']);
+$router->addRoute('GET', '/api/assignments/:id', [AssignmentController::class, 'show']);
+$router->addRoute('POST', '/api/assignments', [AssignmentController::class, 'store']);
+$router->addRoute('PATCH', '/api/assignments/:id', [AssignmentController::class, 'update']);
+$router->addRoute('DELETE', '/api/assignments/:id', [AssignmentController::class, 'destroy']);
 
-// Record Attendance route
-$router->addRoute('POST', '/record_attendance', function() {
-    $attendanceRecorder = new AttendanceRecorder();
-    return $attendanceRecorder->recordAttendance();
-});
+// Attendance routes
+$router->addRoute('GET', '/api/attendance', [AttendanceController::class, 'index']);
+$router->addRoute('POST', '/api/attendance', [AttendanceController::class, 'store']);
+$router->addRoute('PATCH', '/api/attendance/:id', [AttendanceController::class, 'update']);
 
-// Add Assignment route
-$router->addRoute('POST', '/add_assignment', function() {
-    $assignmentAdder = new AssignmentAdder();
-    return $assignmentAdder->addAssignment();
-});
+// Grade routes
+$router->addRoute('GET', '/api/grades', [GradeController::class, 'index']);
+$router->addRoute('GET', '/api/grades/:id', [GradeController::class, 'show']);
+$router->addRoute('POST', '/api/grades', [GradeController::class, 'store']);
+$router->addRoute('PATCH', '/api/grades/:id', [GradeController::class, 'update']);
 
 // Handle the request
 $method = $_SERVER['REQUEST_METHOD'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = $_SERVER['REQUEST_URI'];
 $router->handleRequest($method, $path);
 
